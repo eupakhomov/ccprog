@@ -31,7 +31,8 @@
 #define CMD_WR_CONFIG               0x19
 #define CMD_RD_CONFIG               0x24
 #define CMD_READ_STATUS             0x30
-#define CMD_RESUME                  0x4C
+#define CMD_RESUME                  0x48
+#define CMD_HALT                    0x40
 #define CMD_DEBUG_INSTR_1B          (0x54|1)
 #define CMD_DEBUG_INSTR_2B          (0x54|2)
 #define CMD_DEBUG_INSTR_3B          (0x54|3)
@@ -332,6 +333,55 @@ int debug_init(unsigned char *chip_id, unsigned char *revision)
   }
 }
 
+unsigned char chip_status(void)
+{
+	unsigned char status;
+	unsigned char ok;
+	
+	ok = debug_command(CMD_READ_STATUS, 0, 0, &status);
+    if (!ok) {
+      printf("Failed to read status.\n");
+      return ok;
+    }
+	
+	return status;
+}	
+
+unsigned char chip_halt(void)
+{
+  unsigned char status;
+  unsigned char ok;
+  // Send command
+  ok = debug_command(CMD_HALT, 0, 0, &status);
+  
+   printf("Chip status:\n");
+   printf("%u", status);
+   printf("\n");
+  
+  if (!ok) {
+    return ok;
+  }
+  
+  return 1;
+}
+
+unsigned char chip_resume(void)
+{
+  unsigned char status;
+  unsigned char ok;
+  // Send command
+  ok = debug_command(CMD_RESUME, 0, 0, &status);
+  
+   printf("Chip status:\n");
+   printf("%u", status);
+   printf("\n");
+  
+  if (!ok) {
+    return ok;
+  }
+  
+  return 1;
+}
 
 
 /**************************************************************************//**
@@ -741,7 +791,7 @@ void usage(char *prog_name, char *command) {
   } else {
     printf("Chipcon CC1110 GPIO-based (bitbang) programmer\n\n", prog_name);
     printf("Usage: %s command\n\n", prog_name);
-    printf(" Commands supported: erase reset write\n\n");
+    printf(" Commands supported: erase reset write status resume halt\n\n");
     printf(" Command line options:\n");
     printf("   -p DC,DD,RESET              specify mraa pins for debugging cc chip:\n\n");
   }
@@ -757,6 +807,8 @@ int main(int argc, char **argv)
 {
   int c;
   char *pin_str = NULL;
+  
+  unsigned char status;
   
   // Use defaults for RiledUp board.
   int reset_pin = RILED_UP_RESET;
@@ -812,6 +864,33 @@ int main(int argc, char **argv)
         reset_dup();
         printf("Device reset\n");
       }
+	} else if (strcmp(cmd, "status") == 0) {
+	  printf("Reading chip status.\n");
+
+      if (INIT) {
+        status = chip_status();
+        printf("Chip status:\n");
+		printf("%u", status);
+		printf("\n");
+      } else {
+        printf("Chip status failed.\n");
+      }
+	} else if (strcmp(cmd, "resume") == 0) {
+	  printf("Resume processor.\n");
+
+      if (INIT && chip_resume()) {
+        printf("Processor resumed.\n");
+      } else {
+        printf("Resume failed.\n");
+      }  
+	} else if (strcmp(cmd, "halt") == 0) {
+	  printf("Halt processor.\n");
+
+      if (INIT && chip_halt()) {
+        printf("Processor halted.\n");
+      } else {
+        printf("Halt failed.\n");
+      }    
     } else if (strcmp(cmd, "erase") == 0) {
       printf("Erasing chip.\n");
       if (INIT && chip_erase()) {
