@@ -763,7 +763,7 @@ int init(int dc_pin, int dd_pin, int reset_pin) {
 
   if (chip_id != CHIPID_CC1110) {
     printf("This code is only tested on CC1110. Unsupported chip id = 0x%02x.\n", chip_id);
-    return 0;
+    // return 0;
   }
 
   // Write FWT for 24MHz clock (24MHz = 0x20)
