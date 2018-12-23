@@ -36,7 +36,9 @@ It also provides possibility to request a chip status and call resume in case th
 Recommended actions if chip is halted:
 
 Install ccprog tools on your rig: cd ~/src; git clone https://github.com/eupakhomov/ccprog.git
+
 Build (compile) ccprog so you can run it: cd ccprog; make ccprog
+
 Make sure you’ve installed MRAA (https://github.com/intel-iot-devkit/mraa)
 
 Check chip status:
@@ -61,8 +63,11 @@ It means chip was flashed succesfully, CPU is not idle, CPU is halted and oscill
 Flash the radio chip:
 
 wget https://github.com/EnhancedRadioDevices/subg_rfspy/releases/download/v0.8-explorer/spi1_alt2_EDISON_EXPLORER_US_STDLOC.hex
+
 ./ccprog -p 16,18,7 reset
+
 ./ccprog -p 16,18,7 erase
+
 ./ccprog -p 16,18,7 write spi1_alt2_EDISON_EXPLORER_US_STDLOC.hex
 
 In case CPU is halted: call resume one or several times until LEDs start blinking:
